@@ -23,7 +23,8 @@ class MockHypothesis:
 class TestOrganization(unittest.TestCase):
     def test_promote(self):
         hypothesis = MockHypothesis()
-        orga = Organization(hypothesis=hypothesis, strategy=BestStrategy())
+        orga = Organization()
+        orga.set_strategies(hypothesis=hypothesis, strategy=BestStrategy())
         orga.add_layer(1, size=1, efficiency_weight=1.0)
         orga.add_layer(2, size=3, efficiency_weight=1.0)
 
@@ -42,7 +43,7 @@ class TestOrganization(unittest.TestCase):
         self.assertEquals(7.5, orga.layers[1].employees[0].competence)
 
     def test_workforce(self):
-        orga = Organization(hypothesis=None, strategy=None)
+        orga = Organization()
         orga.add_layer(1, size=2, efficiency_weight=1.0)
         orga.add_layer(2, size=3, efficiency_weight=1.0)
         orga.add_layer(3, size=5, efficiency_weight=1.0)
@@ -50,7 +51,7 @@ class TestOrganization(unittest.TestCase):
         self.assertEquals(10, orga.workforce())
 
     def test_maximum_efficiency(self):
-        orga = Organization(hypothesis=None, strategy=None)
+        orga = Organization()
         orga.add_layer(1, size=2, efficiency_weight=1.0)
         orga.add_layer(2, size=3, efficiency_weight=0.6)
         orga.add_layer(3, size=5, efficiency_weight=0.2)
@@ -58,7 +59,7 @@ class TestOrganization(unittest.TestCase):
         self.assertEquals((2*10*1.0 + 3*10*0.6 + 5*10*0.2) / 10, orga.maximum_efficiency())
 
     def test_global_efficiency(self):
-        orga = Organization(hypothesis=None, strategy=None)
+        orga = Organization()
         orga.add_layer(1, size=2, efficiency_weight=1.0)
         orga.add_layer(2, size=3, efficiency_weight=0.6)
         orga.add_layer(3, size=5, efficiency_weight=0.2)

@@ -1,11 +1,47 @@
+import copy
+import statistics
+
 from employee import Employee
+
+MIN_COMPETENCE = 4.0
+MAX_AGE = 60
+
+
+class Simulation:
+    def __init__(self, nb_organizations, topology, min_competence=MIN_COMPETENCE, max_age=MAX_AGE):
+        self.current_run = None
+        self.history = None
+
+        # topology format : {level: (nb_positions, efficiency_weight), ...}
+        template = Organization(min_competence, max_age)
+        for level, characteristics in topology.items():
+            template.add_layer(number=level, size=characteristics[0], efficiency_weight=characteristics[1])
+
+        self.starting_state = [copy.deepcopy(template) for _ in range(nb_organizations)]
+        for organization in self.starting_state:
+            organization.populate()
+
+    def prepare(self, hypothesis, strategy):
+        self.current_run = copy.deepcopy(self.starting_state)
+        for organization in self.current_run:
+            organization.set_strategies(hypothesis, strategy)
+
+        self.history = [self.averaged_global_efficiency()]
+
+    def step(self):
+        for organization in self.current_run:
+            organization.step()
+        self.history.append(self.averaged_global_efficiency())
+
+    def averaged_global_efficiency(self):
+        return statistics.mean(organization.global_efficiency() for organization in self.current_run)
 
 
 class Organization:
-    def __init__(self, hypothesis, strategy, min_competence=4.0, max_age=60):
+    def __init__(self, min_competence=4.0, max_age=60):
         self.layers = {}
-        self.hypothesis = hypothesis
-        self.strategy = strategy
+        self.hypothesis = None
+        self.strategy = None
         self.min_competence = min_competence
         self.max_age = max_age
 
@@ -15,6 +51,10 @@ class Organization:
     def populate(self):
         for layer in self.layers.values():
             layer.hire()
+
+    def set_strategies(self, hypothesis, strategy):
+        self.hypothesis = hypothesis
+        self.strategy = strategy
 
     def step(self):
         for level in sorted(self.layers.keys()):
@@ -26,6 +66,7 @@ class Organization:
             self.layers[level].grow_up()
 
     def promote(self, origin, destination):
+        assert self.hypothesis is not None and self.strategy is not None
         for index, employee in enumerate(destination.employees):
             if employee is None:
                 promoted = self.strategy.choose_from(origin.employees)
