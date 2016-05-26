@@ -43,6 +43,21 @@ class WorstStrategy:
         return "'The Worst' strategy"
 
 
+class BestWorstStrategy:
+    def __init__(self, best_probability):
+        self.best_probability = best_probability
+
+    def choose_from(self, employees):
+        best_competence = max(emp.competence for emp in employees if emp is not None)
+        best_employee = choose_by_competence(employees, best_competence)
+        worst_competence = min(emp.competence for emp in employees if emp is not None)
+        worst_employee = choose_by_competence(employees, worst_competence)
+        return best_employee if random.random() < self.best_probability else worst_employee
+
+    def __repr__(self):
+        return "'The Best-Worst' strategy with p={0}".format(self.best_probability)
+
+
 class RandomStrategy:
     def choose_from(self, employees):
         return random.choice([emp for emp in employees if emp is not None])

@@ -25,7 +25,6 @@ class Simulation:
         self.current_run = copy.deepcopy(self.starting_state)
         for organization in self.current_run:
             organization.set_strategies(hypothesis, strategy)
-
         self.history = [self.averaged_global_efficiency()]
 
     def step(self):
